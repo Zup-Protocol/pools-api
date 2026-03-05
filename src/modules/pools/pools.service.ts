@@ -411,58 +411,6 @@ export class PoolsService {
       response.Pool = [...response.Pool, ...ethereumResponse.Pool];
     }
 
-    // TODO: REMOVE HOTFIX FOR BASE ONCE ISSUE IS FIXED
-    if (networks.has(Networks.BASE)) {
-      const baseResponse = await new GraphQLClient(
-        'https://indexer.dedicated.hyperindex.xyz/0454ac3/v1/graphql',
-      ).request<GetPoolsQuery, GetPoolsQueryVariables>(GetPoolsDocument, {
-        poolsFilter: {
-          _and: [
-            {
-              chainId: {
-                _eq: Networks.BASE,
-              },
-              totalValueLockedUSD: {
-                _gt: minTvlUsd.toString(),
-                _lt: (1000000000000).toString(), // remove pools with tvl > 1 trillion (which today can be considered an error)
-              },
-              poolType: {
-                _in: typesAllowed,
-              },
-              ...(params.filters.blockedProtocols.length > 0
-                ? {
-                    protocol_id: {
-                      _nin: params.filters.blockedProtocols,
-                    },
-                  }
-                : {}),
-            },
-            {
-              _or: possibleCombinations,
-            },
-          ],
-        },
-        dailyDataFilter: {
-          feesUSD: {
-            _lt: '1000000000', // filter out weird days with very high fees
-          },
-          dayStartTimestamp: {
-            _gt: getDaysAgoTimestamp(100).toString(),
-          },
-        },
-        hourlyDataFilter: {
-          feesUSD: {
-            _lt: '10000000', // filter out weird hours with very high fees
-          },
-          hourStartTimestamp: {
-            _gt: yesterdayStartSecondsTimestamp().toString(),
-          },
-        },
-      });
-
-      response.Pool = [...response.Pool, ...baseResponse.Pool];
-    }
-
     return response;
   }
 
