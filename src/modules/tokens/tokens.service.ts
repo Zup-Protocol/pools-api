@@ -89,20 +89,6 @@ export class TokensService {
         });
       }
 
-      // TODO: REMOVE HOTFIX FOR BASE ONCE ISSUE IS FIXED
-      if (network === Networks.BASE) {
-        return await new GraphQLClient('https://indexer.dedicated.hyperindex.xyz/0454ac3/v1/graphql').request<
-          GetTokenQuery,
-          GetTokenQueryVariables
-        >(GetTokenDocument, {
-          tokenFilter: {
-            id: {
-              _eq: `${network}-${address}`.toLowerCase(),
-            },
-          },
-        });
-      }
-
       return await this.graphqlClient.request<GetTokenQuery, GetTokenQueryVariables>(GetTokenDocument, {
         tokenFilter: {
           id: {
@@ -129,25 +115,6 @@ export class TokensService {
     // TODO: REMOVE HOTFIX FOR ETHEREUM ONCE ISSUE IS FIXED
     if (network == Networks.ETHEREUM) {
       const tokenPrice = await new GraphQLClient('https://indexer.dedicated.hyperindex.xyz/aefe5f4/v1/graphql')
-        .request<GetTokenQuery, GetTokenQueryVariables>(GetTokenDocument, {
-          tokenFilter: {
-            id: {
-              _eq: `${network}-${tokenAddress}`.toLowerCase(),
-            },
-          },
-        })
-        .then((response) => response.Token[0].usdPrice)
-        .catch(() => 0);
-
-      return {
-        address: tokenAddress,
-        usdPrice: Number.parseFloat(String(tokenPrice ?? 0)),
-      };
-    }
-
-    // TODO: REMOVE HOTFIX FOR BASE ONCE ISSUE IS FIXED
-    if (network == Networks.BASE) {
-      const tokenPrice = await new GraphQLClient('https://indexer.dedicated.hyperindex.xyz/0454ac3/v1/graphql')
         .request<GetTokenQuery, GetTokenQueryVariables>(GetTokenDocument, {
           tokenFilter: {
             id: {

@@ -41,19 +41,6 @@ export class PoolsService {
         });
       }
 
-      // TODO: REMOVE HOTFIX FOR BASE ONCE INDEXER USES ONLY ONE DEPLOYMENT
-      if (NetworksUtils.networkFromChainId(chainId) === Networks.BASE) {
-        return await new GraphQLClient('https://indexer.dedicated.hyperindex.xyz/0454ac3/v1/graphql').request<
-          GetPoolsQuery,
-          GetPoolsQueryVariables
-        >(GetPoolsDocument, {
-          poolsFilter: {
-            id: { _eq: `${chainId}-${poolAddress.toLowerCase()}` },
-          },
-          ...getPoolQueryVariablesForYieldCalculation(),
-        });
-      }
-
       return await this.graphqlClient.request<GetPoolsQuery, GetPoolsQueryVariables>(GetPoolsDocument, {
         poolsFilter: {
           id: { _eq: `${chainId}-${poolAddress.toLowerCase()}` },
